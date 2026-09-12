@@ -59,7 +59,7 @@ public final class Waystones extends JavaPlugin {
         NamespacedKey recipeKey = new NamespacedKey(this, "waystone_recipe");
         ShapedRecipe recipe = new ShapedRecipe(recipeKey, waystoneItem);
         recipe.shape("III", "IEI", "III");
-        recipe.setIngredient('I', Material.IRON_BLOCK);
+        recipe.setIngredient('I', Material.DIAMOND);
         recipe.setIngredient('E', Material.ENDER_EYE);
 
         Bukkit.addRecipe(recipe);

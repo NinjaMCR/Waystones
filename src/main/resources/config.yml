@@ -1,6 +1,7 @@
 # Waystone Customization Configuration
 waystone-display-name: "§bWaystone"
-gui-title: "§8Select a Waystone Network Destination"
+gui-title: "§8Select a Waystone Destination"
+world-selector-title: "§8Select a Dimension"
 messages:
   placed: "§aYou have placed a Waystone!"
   teleport: "§aWoosh! Teleported to your selected Waystone."

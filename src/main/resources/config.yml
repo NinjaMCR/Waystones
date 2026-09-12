@@ -1,0 +1,7 @@
+# Waystone Customization Configuration
+waystone-display-name: "§bWaystone"
+gui-title: "§8Select a Waystone Network Destination"
+messages:
+  placed: "§aYou have placed a Waystone!"
+  teleport: "§aWoosh! Teleported to your selected Waystone."
+  broken: "§cWaystone has been broken and removed from the network."

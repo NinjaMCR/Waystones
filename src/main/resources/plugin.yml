@@ -1,0 +1,7 @@
+name: waystones
+version: '${version}'
+
+main: com.ninjamcr.waystones.Waystones
+paper-plugin-loader: com.ninjamcr.waystones.WaystonesLoader
+api-version: '26.2'
+load: POSTWORLD

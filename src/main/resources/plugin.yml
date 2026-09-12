@@ -1,5 +1,5 @@
 name: waystones
-version: '${version}'
+version: '0.1'
 
 main: com.ninjamcr.waystones.Waystones
 paper-plugin-loader: com.ninjamcr.waystones.WaystonesLoader

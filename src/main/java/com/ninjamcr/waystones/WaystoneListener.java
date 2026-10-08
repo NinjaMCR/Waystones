@@ -15,17 +15,17 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.block.Action;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,29 +57,46 @@ public class WaystoneListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
+
         if (block.getType() == Material.LODESTONE && isBlockLocationInList(block.getLocation())) {
             event.setDropItems(false);
-            Location loc = block.getLocation();
-            Waystone ws = getWaystone(loc);
 
-            // Clear from cache + SQLite DB
-            waystones.remove(ws);
-            plugin.getDatabaseManager().deleteWaystone(ws);
+            handleWaystoneBreak(block);
 
-            // Drop a waystone instead of a lodestone
-            String customName = plugin.getConfig().getString("waystone-display-name", "§bWaystone");
-            ItemStack waystoneItem = new ItemStack(Material.LODESTONE);
-            ItemMeta meta = waystoneItem.getItemMeta();
-            if (meta != null) {
-                meta.setDisplayName(customName);
-                NamespacedKey key = new NamespacedKey(plugin, "is_waystone");
-                meta.getPersistentDataContainer().set(key, PersistentDataType.BOOLEAN, true);
-                waystoneItem.setItemMeta(meta);
-            }
-            block.getWorld().dropItemNaturally(loc, waystoneItem);
+            String brokenMsg = plugin.getConfig().getString(
+                    "messages.broken",
+                    "Waystone broken."
+            );
 
-            String brokenMsg = plugin.getConfig().getString("messages.broken", "Waystone broken.");
             event.getPlayer().sendMessage(brokenMsg);
+        }
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        Iterator<Block> iterator = event.blockList().iterator();
+        while (iterator.hasNext()) {
+            Block block = iterator.next();
+
+            if (block.getType() == Material.LODESTONE && isBlockLocationInList(block.getLocation())) {
+                iterator.remove();
+                handleWaystoneBreak(block);
+                block.setType(Material.AIR);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event) {
+        Iterator<Block> iterator = event.blockList().iterator();
+        while (iterator.hasNext()) {
+            Block block = iterator.next();
+
+            if (block.getType() == Material.LODESTONE && isBlockLocationInList(block.getLocation())) {
+                iterator.remove();
+                handleWaystoneBreak(block);
+                block.setType(Material.AIR);
+            }
         }
     }
 
@@ -178,7 +195,57 @@ public class WaystoneListener implements Listener {
         }
     }
 
-    public void openWaystoneCreationDialog(Player player, Location loc) {
+    private void handleWaystoneBreak(Block block) {
+        if (block.getType() != Material.LODESTONE) {
+            return;
+        }
+
+        if (!isBlockLocationInList(block.getLocation())) {
+            return;
+        }
+
+        Location loc = block.getLocation();
+        Waystone ws = getWaystone(loc);
+
+        plugin.getLogger().info(
+                "Waystone '" + ws.getName() + "' at " +
+                        loc.getWorld().getName() + " " +
+                        loc.getBlockX() + ", " +
+                        loc.getBlockY() + ", " +
+                        loc.getBlockZ() +
+                        " was destroyed and removed from the network."
+        );
+
+        // Clear from cache + SQLite DB
+        waystones.remove(ws);
+        plugin.getDatabaseManager().deleteWaystone(ws);
+
+        // Drop a waystone instead of a lodestone
+        String customName = plugin.getConfig().getString(
+                "waystone-display-name",
+                "§bWaystone"
+        );
+
+        ItemStack waystoneItem = new ItemStack(Material.LODESTONE);
+        ItemMeta meta = waystoneItem.getItemMeta();
+
+        if (meta != null) {
+            meta.setDisplayName(customName);
+
+            NamespacedKey key = new NamespacedKey(plugin, "is_waystone");
+            meta.getPersistentDataContainer().set(
+                    key,
+                    PersistentDataType.BOOLEAN,
+                    true
+            );
+
+            waystoneItem.setItemMeta(meta);
+        }
+
+        block.getWorld().dropItemNaturally(loc, waystoneItem);
+    }
+
+    private void openWaystoneCreationDialog(Player player, Location loc) {
 
         Dialog dialog = Dialog.create(builder -> builder.empty()
             .base(DialogBase.builder(Component.text("Create Waystone"))

@@ -18,6 +18,15 @@ public final class Waystones extends JavaPlugin {
         // Save and load the config.yml file
         saveDefaultConfig();
 
+        String version = Bukkit.getMinecraftVersion();
+
+        if (!version.startsWith("26.")) {
+            getLogger().severe("Unsupported Minecraft version: " + version);
+            getLogger().severe("Waystones requires Minecraft 26.x");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         // Setup SQLite
         databaseManager = new DatabaseManager(this);
         databaseManager.initialize();

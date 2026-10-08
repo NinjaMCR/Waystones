@@ -41,7 +41,11 @@ public class WaystoneListener implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        if (event.getBlockPlaced().getType() != Material.LODESTONE) {
+        NamespacedKey key = new NamespacedKey(plugin, "is_waystone");
+        ItemMeta meta = event.getItemInHand().getItemMeta();
+
+        // Check that what we are placing is a waystone
+        if (meta.getPersistentDataContainer().get(key, PersistentDataType.BOOLEAN) == null) {
             return;
         }
 

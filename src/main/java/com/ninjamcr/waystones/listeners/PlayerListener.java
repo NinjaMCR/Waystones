@@ -12,12 +12,10 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class PlayerListener implements Listener {
-    private final Waystones plugin;
     private final WaystoneInteraction waystoneInteraction;
     private final BlockUtils blockUtils;
 
     public PlayerListener(Waystones plugin) {
-        this.plugin = plugin;
         this.waystoneInteraction = new WaystoneInteraction(plugin);
         this.blockUtils = new BlockUtils(plugin);
     }

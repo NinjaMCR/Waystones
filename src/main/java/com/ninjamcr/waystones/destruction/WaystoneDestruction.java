@@ -10,9 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-
 import java.util.Iterator;
-import java.util.List;
 
 public class WaystoneDestruction {
     private final Waystones plugin;

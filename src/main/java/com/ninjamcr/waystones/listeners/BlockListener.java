@@ -3,8 +3,6 @@ package com.ninjamcr.waystones.listeners;
 import com.ninjamcr.waystones.Waystones;
 import com.ninjamcr.waystones.creation.WaystoneCreation;
 import com.ninjamcr.waystones.destruction.WaystoneDestruction;
-import com.ninjamcr.waystones.interaction.WaystoneInteraction;
-import com.ninjamcr.waystones.models.Waystone;
 import com.ninjamcr.waystones.utils.BlockUtils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -18,9 +16,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class BlockListener  implements Listener {
 

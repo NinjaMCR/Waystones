@@ -20,7 +20,7 @@ import java.util.List;
 public final class Waystones extends JavaPlugin {
 
     private DatabaseManager databaseManager;
-    public List<Waystone> waystones = new ArrayList<Waystone>() {};
+    public List<Waystone> waystones = new ArrayList<>() {};
 
     @Override
     public void onEnable() {

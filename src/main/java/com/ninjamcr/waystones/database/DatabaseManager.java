@@ -1,4 +1,4 @@
-package com.ninjamcr.waystones;
+package com.ninjamcr.waystones.database;
 
 import com.ninjamcr.waystones.models.Waystone;
 import org.bukkit.Bukkit;

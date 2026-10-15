@@ -1,5 +1,10 @@
 package com.ninjamcr.waystones;
 
+import com.ninjamcr.waystones.database.DatabaseManager;
+import com.ninjamcr.waystones.listeners.BlockListener;
+import com.ninjamcr.waystones.listeners.InventoryListener;
+import com.ninjamcr.waystones.listeners.PlayerListener;
+import com.ninjamcr.waystones.models.Waystone;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -9,9 +14,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class Waystones extends JavaPlugin {
 
     private DatabaseManager databaseManager;
+    public List<Waystone> waystones = new ArrayList<>() {};
 
     @Override
     public void onEnable() {
@@ -32,11 +41,18 @@ public final class Waystones extends JavaPlugin {
         databaseManager.initialize();
 
         // Load pre-existing waystones from .db file into memory cache
-        WaystoneListener.waystones.addAll(databaseManager.loadWaystones());
+        waystones.addAll(databaseManager.loadWaystones());
+
+        // Listeners
+        BlockListener blockListener = new BlockListener(this);
+        InventoryListener inventoryListener = new InventoryListener(this);
+        PlayerListener playerListener = new PlayerListener(this);
 
         // Bind System Registrations
         registerWaystoneRecipe();
-        getServer().getPluginManager().registerEvents(new WaystoneListener(this), this);
+        getServer().getPluginManager().registerEvents(blockListener, this);
+        getServer().getPluginManager().registerEvents(inventoryListener, this);
+        getServer().getPluginManager().registerEvents(playerListener, this);
 
         getLogger().info("Waystone Plugin successfully loaded!");
     }

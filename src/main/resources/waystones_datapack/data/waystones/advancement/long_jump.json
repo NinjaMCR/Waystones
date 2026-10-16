@@ -1,0 +1,18 @@
+{
+  "parent": "waystones:first_interdimensional_jump",
+  "display": {
+    "icon": {
+      "id": "minecraft:ender_eye"
+    },
+    "title": "Long Jump",
+    "description": "Use a Waystone to travel more than 2500 blocks at a time",
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "long_distance_teleport": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

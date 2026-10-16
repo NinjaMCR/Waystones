@@ -1,0 +1,18 @@
+{
+  "parent": "waystones:first_jump",
+  "display": {
+    "icon": {
+      "id": "minecraft:warped_hyphae"
+    },
+    "title": "Interdimensional",
+    "description": "Use a Waystone to teleport between dimensions",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "first_interdimensional_teleport": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:lodestone"
+    },
+    "title": "What a Waystone!",
+    "description": "Craft your first Waystone!",
+    "background": "minecraft:gui/advancements/backgrounds/stone",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "waystone_created": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

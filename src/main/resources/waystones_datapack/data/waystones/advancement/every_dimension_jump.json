@@ -1,0 +1,24 @@
+{
+  "parent": "waystones:first_interdimensional_jump",
+  "display": {
+    "icon": {
+      "id": "minecraft:end_portal_frame"
+    },
+    "title": "Dr Strange",
+    "description": "Use a Waystone to travel between every dimension",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "nether_teleport": {
+      "trigger": "minecraft:impossible"
+    },
+    "end_teleport": {
+      "trigger": "minecraft:impossible"
+    },
+    "overworld_teleport": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

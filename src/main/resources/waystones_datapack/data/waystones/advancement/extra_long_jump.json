@@ -1,0 +1,22 @@
+{
+  "parent": "waystones:long_jump",
+  "display": {
+    "icon": {
+      "id": "minecraft:ender_eye",
+      "components": {
+        "minecraft:enchantment_glint_override": true
+      }
+    },
+    "title": "Extra Long Jump",
+    "description": "Use a Waystone to travel more than 15000 blocks at a time",
+    "frame": "challenge",
+    "is_visible": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "very_long_distance_teleport": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

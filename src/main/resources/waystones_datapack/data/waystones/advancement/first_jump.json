@@ -1,0 +1,18 @@
+{
+  "parent": "waystones:first_waystone",
+  "display": {
+    "icon": {
+      "id": "minecraft:ender_pearl"
+    },
+    "title": "First Jump",
+    "description": "Use a Waystone to teleport for the first time",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "first_teleport": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

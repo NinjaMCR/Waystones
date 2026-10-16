@@ -4,7 +4,6 @@ import com.ninjamcr.waystones.Waystones;
 import com.ninjamcr.waystones.interaction.WaystoneInteraction;
 import com.ninjamcr.waystones.utils.AdvancementUtils;
 import com.ninjamcr.waystones.utils.BlockUtils;
-import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -15,8 +14,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
 public class PlayerListener implements Listener {
     private final WaystoneInteraction waystoneInteraction;
@@ -35,12 +32,7 @@ public class PlayerListener implements Listener {
         Recipe recipe = event.getRecipe();
         Player player = (Player)event.getWhoClicked();
 
-        if ((recipe instanceof Keyed keyedRecipe)) {
-            NamespacedKey key = keyedRecipe.getKey();
-            if (key.equals(recipeKey)){
-                AdvancementUtils.awardFirstWaystone(player);
-            }
-        }
+        AdvancementUtils.awardFirstWaystone(player, recipe, recipeKey);
     }
 
     @EventHandler

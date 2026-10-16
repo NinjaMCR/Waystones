@@ -3,6 +3,7 @@ package com.ninjamcr.waystones.listeners;
 import com.ninjamcr.waystones.Waystones;
 import com.ninjamcr.waystones.interaction.WaystoneInteraction;
 import com.ninjamcr.waystones.models.SelectedWorld;
+import com.ninjamcr.waystones.utils.AdvancementUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -94,8 +95,10 @@ public class InventoryListener implements Listener {
 
                     if (worldName != null && coords != null) {
                         Location target = new Location(Bukkit.getWorld(worldName), coords[0] + 0.5, coords[1] + 1.0, coords[2] + 0.5);
+                        Location startPoint = player.getLocation();
                         player.closeInventory();
                         player.teleport(target);
+                        triggerAdvancementChecks(player, target, startPoint);
 
                         String tpMsg = plugin.getConfig().getString("messages.teleport", "Teleported!");
                         player.sendMessage(tpMsg);
@@ -103,5 +106,12 @@ public class InventoryListener implements Listener {
                 }
             }
         }
+    }
+
+    private void triggerAdvancementChecks(Player player, Location target, Location startPoint){
+        AdvancementUtils.awardFirstJump(player);
+        AdvancementUtils.awardInterdimensionalJump(player, target, startPoint);
+        AdvancementUtils.awardLongJumps(player, target, startPoint);
+        AdvancementUtils.awardAllDimensionJumps(player, target);
     }
 }

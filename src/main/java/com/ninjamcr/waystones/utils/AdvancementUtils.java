@@ -50,8 +50,8 @@ public class AdvancementUtils {
     public static void awardLongJumps(Player player, Location dest, Location startPoint){
         NamespacedKey longJumpKey = new NamespacedKey("waystones", "long_jump");
         NamespacedKey extraLongJumpKey = new NamespacedKey("waystones", "extra_long_jump");
-        startPoint.setZ(0);
-        dest.setZ(0);
+        startPoint.setY(0);
+        dest.setY(0);
 
         AdvancementProgress longJumpProgress = getAdvancementProgress(longJumpKey, player);
         AdvancementProgress extraLongJumpProgress = getAdvancementProgress(extraLongJumpKey, player);

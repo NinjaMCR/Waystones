@@ -84,7 +84,6 @@ public class AdvancementUtils {
     }
 
     private static AdvancementProgress getAdvancementProgress(NamespacedKey key, Player player){
-
         Advancement advancement = Bukkit.getAdvancement(key);
 
         if (advancement == null) {

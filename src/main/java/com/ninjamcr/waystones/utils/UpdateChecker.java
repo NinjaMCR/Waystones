@@ -22,22 +22,31 @@ public class UpdateChecker {
                 BufferedReader reader = getBufferedReader();
                 String line = "";
                 String currentVersion = plugin.getPluginMeta().getVersion();
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("version:")) {
-                        String latestVersion = line.replace("version: ", "").replace("'", "");
-                        if (!latestVersion.equals(currentVersion)){
-                            plugin.getLogger().warning("There is a newer version of Waystones available!");
-                            plugin.getLogger().warning("Current version: " + plugin.getPluginMeta().getVersion() + " | Latest version: " + latestVersion);
-                            plugin.getLogger().warning("Update your plugin version to the latest at https://modrinth.com/plugin/waystones-ninjamcr");
-                        }
-                    }
-                }
+                ReadFileAndWarn(reader, currentVersion);
             } catch (URISyntaxException | MalformedURLException e) {
                 throw new RuntimeException("URL was incorrect", e);
             } catch (IOException e) {
                 throw new RuntimeException("Connection failed to open", e);
             }
         });
+    }
+
+    private void ReadFileAndWarn(BufferedReader reader, String currentVersion) throws IOException {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.startsWith("version:")) {
+                CheckVersionAndWarn(currentVersion, line);
+            }
+        }
+    }
+
+    private void CheckVersionAndWarn(String currentVersion, String line) {
+        String latestVersion = line.replace("version: ", "").replace("'", "");
+        if (!latestVersion.equals(currentVersion)){
+            plugin.getLogger().warning("There is a newer version of Waystones available!");
+            plugin.getLogger().warning("Current version: " + plugin.getPluginMeta().getVersion() + " | Latest version: " + latestVersion);
+            plugin.getLogger().warning("Update your plugin version to the latest at https://modrinth.com/plugin/waystones-ninjamcr");
+        }
     }
 
     private static @NonNull BufferedReader getBufferedReader() throws URISyntaxException, IOException {

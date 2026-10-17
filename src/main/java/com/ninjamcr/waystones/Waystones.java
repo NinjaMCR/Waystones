@@ -5,6 +5,7 @@ import com.ninjamcr.waystones.listeners.BlockListener;
 import com.ninjamcr.waystones.listeners.InventoryListener;
 import com.ninjamcr.waystones.listeners.PlayerListener;
 import com.ninjamcr.waystones.models.Waystone;
+import com.ninjamcr.waystones.utils.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -27,13 +28,12 @@ public final class Waystones extends JavaPlugin {
         // Save and load the config.yml file
         saveDefaultConfig();
 
-        String version = Bukkit.getMinecraftVersion();
-
-        if (!version.startsWith("26.")) {
-            getLogger().severe("Unsupported Minecraft version: " + version);
-            getLogger().severe("Waystones requires Minecraft 26.x");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
+        // Run version checks
+        if (getPluginMeta().getVersion().contains("beta")){
+            getLogger().warning("WARNING: You are using a beta version which may be unstable");
+        } else {
+            UpdateChecker updateChecker = new UpdateChecker(this);
+            updateChecker.CheckForUpdates();
         }
 
         // Setup SQLite

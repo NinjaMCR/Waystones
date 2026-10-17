@@ -27,7 +27,13 @@ public final class Waystones extends JavaPlugin {
     public void onEnable() {
         // Save and load the config.yml file
         saveDefaultConfig();
-        RunUpdateChecker();
+
+        // Run version checks
+        if (getPluginMeta().getVersion().contains("beta")){
+            getLogger().warning("WARNING: You are using a beta version which may be unstable");
+        } else {
+            RunUpdateChecker();
+        }
 
         // Setup SQLite
         databaseManager = new DatabaseManager(this);

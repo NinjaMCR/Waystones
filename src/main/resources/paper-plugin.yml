@@ -1,5 +1,5 @@
 name: waystones
-version: '1.3'
+version: '1.4-beta'
 
 main: com.ninjamcr.waystones.Waystones
 loader: com.ninjamcr.waystones.WaystonesLoader

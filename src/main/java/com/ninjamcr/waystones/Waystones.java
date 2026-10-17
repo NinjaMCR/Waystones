@@ -5,6 +5,7 @@ import com.ninjamcr.waystones.listeners.BlockListener;
 import com.ninjamcr.waystones.listeners.InventoryListener;
 import com.ninjamcr.waystones.listeners.PlayerListener;
 import com.ninjamcr.waystones.models.Waystone;
+import com.ninjamcr.waystones.utils.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -26,15 +27,7 @@ public final class Waystones extends JavaPlugin {
     public void onEnable() {
         // Save and load the config.yml file
         saveDefaultConfig();
-
-        String version = Bukkit.getMinecraftVersion();
-
-        if (!version.startsWith("26.")) {
-            getLogger().severe("Unsupported Minecraft version: " + version);
-            getLogger().severe("Waystones requires Minecraft 26.x");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
+        RunUpdateChecker();
 
         // Setup SQLite
         databaseManager = new DatabaseManager(this);
@@ -88,5 +81,15 @@ public final class Waystones extends JavaPlugin {
         recipe.setIngredient('E', Material.ENDER_EYE);
 
         Bukkit.addRecipe(recipe);
+    }
+
+    private void RunUpdateChecker(){
+        UpdateChecker updateChecker = new UpdateChecker(this);
+        String latestVersion;
+        if ((latestVersion = updateChecker.CheckForUpdates()) != null){
+            getLogger().warning("There is a newer version of Waystones available!");
+            getLogger().warning("Current version: " + getPluginMeta().getVersion() + " | Latest version: " + latestVersion);
+            getLogger().warning("Update your plugin version to the latest at https://modrinth.com/plugin/waystones-ninjamcr");
+        }
     }
 }

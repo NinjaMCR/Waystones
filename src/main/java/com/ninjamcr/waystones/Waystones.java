@@ -32,7 +32,8 @@ public final class Waystones extends JavaPlugin {
         if (getPluginMeta().getVersion().contains("beta")){
             getLogger().warning("WARNING: You are using a beta version which may be unstable");
         } else {
-            RunUpdateChecker();
+            UpdateChecker updateChecker = new UpdateChecker(this);
+            updateChecker.CheckForUpdates();
         }
 
         // Setup SQLite
@@ -87,15 +88,5 @@ public final class Waystones extends JavaPlugin {
         recipe.setIngredient('E', Material.ENDER_EYE);
 
         Bukkit.addRecipe(recipe);
-    }
-
-    private void RunUpdateChecker(){
-        UpdateChecker updateChecker = new UpdateChecker(this);
-        String latestVersion;
-        if ((latestVersion = updateChecker.CheckForUpdates()) != null){
-            getLogger().warning("There is a newer version of Waystones available!");
-            getLogger().warning("Current version: " + getPluginMeta().getVersion() + " | Latest version: " + latestVersion);
-            getLogger().warning("Update your plugin version to the latest at https://modrinth.com/plugin/waystones-ninjamcr");
-        }
     }
 }

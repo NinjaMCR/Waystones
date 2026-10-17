@@ -20,7 +20,6 @@ public class UpdateChecker {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 BufferedReader reader = getBufferedReader();
-                String line = "";
                 String currentVersion = plugin.getPluginMeta().getVersion();
                 ReadFileAndWarn(reader, currentVersion);
             } catch (URISyntaxException | MalformedURLException e) {

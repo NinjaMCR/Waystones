@@ -1,15 +1,7 @@
 package com.ninjamcr.waystones.creation;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.ninjamcr.waystones.Waystones;
 import com.ninjamcr.waystones.models.Waystone;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.dialog.ConfirmationDialog;
-import net.md_5.bungee.api.dialog.DialogBase;
-import net.md_5.bungee.api.dialog.action.ActionButton;
-import net.md_5.bungee.api.dialog.action.CustomClickAction;
-import net.md_5.bungee.api.dialog.input.TextInput;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -22,27 +14,32 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
 public final class WaystoneCreation {
-    private static final String INPUT_NAME = "waystone_name";
+    public static final String INPUT_NAME = "waystone_name";
     private static final long PENDING_TIMEOUT_MILLIS = 120_000L;
 
     private final Waystones plugin;
-    private final NamespacedKey createAction;
-    private final NamespacedKey cancelAction;
     private final NamespacedKey isWaystoneKey;
     private final Map<UUID, PendingPlacement> pendingPlacements = new HashMap<>();
+    private final WaystoneDialogAdapter dialogAdapter;
 
     public WaystoneCreation(Waystones plugin) {
         this.plugin = plugin;
-        this.createAction = new NamespacedKey(plugin, "create_waystone");
-        this.cancelAction = new NamespacedKey(plugin, "cancel_waystone");
         this.isWaystoneKey = new NamespacedKey(plugin, "is_waystone");
+        this.dialogAdapter = createAdapter();
+        this.dialogAdapter.registerHandlers(plugin);
+        plugin.getLogger().info("Waystone creation UI: " + dialogAdapter.getClass().getSimpleName());
+    }
+
+    public Waystones getPlugin() {
+        return plugin;
     }
 
     public void openWaystoneCreationDialog(Player player, Location loc) {
@@ -51,92 +48,74 @@ public final class WaystoneCreation {
             return;
         }
 
-        TextInput nameInput = new TextInput(
-                INPUT_NAME, new TextComponent("Waystone Name")
-        ).width(300).labelVisible(true).initial("").maxLength(32);
-
-        DialogBase base = new DialogBase(new TextComponent("Create Waystone"))
-                .inputs(List.of(nameInput));
-
-        ActionButton create = new ActionButton(
-                new TextComponent("Create"),
-                new CustomClickAction(createAction.toString())
-        );
-        ActionButton cancel = new ActionButton(
-                new TextComponent("Cancel"),
-                new CustomClickAction(cancelAction.toString())
-        );
-
-        ConfirmationDialog dialog = new ConfirmationDialog(base, create, cancel);
-
-        pendingPlacements.put(
-                player.getUniqueId(),
-                new PendingPlacement(loc.clone(), System.currentTimeMillis())
-        );
-
+        UUID playerId = player.getUniqueId();
+        pendingPlacements.put(playerId,
+                new PendingPlacement(loc.clone(), System.currentTimeMillis()));
         try {
-            player.showDialog(dialog);
-        } catch (RuntimeException ex) {
-            pendingPlacements.remove(player.getUniqueId());
-            plugin.getLogger().log(Level.SEVERE, "Unable to show the Waystone creation dialog", ex);
+            dialogAdapter.open(player);
+        } catch (RuntimeException | LinkageError ex) {
+            pendingPlacements.remove(playerId);
+            plugin.getLogger().log(Level.SEVERE, "Unable to open the Waystone creation dialog", ex);
             player.sendMessage("Unable to open the Waystone dialog.");
         }
     }
 
-    public boolean isWaystoneDialogAction(NamespacedKey action) {
-        return createAction.equals(action) || cancelAction.equals(action);
+    public void confirm(Player player, String submittedName) {
+        UUID playerId = player.getUniqueId();
+        runOnMainThread(() -> {
+            PendingPlacement pending = pendingPlacements.remove(playerId);
+            Player onlinePlayer = Bukkit.getPlayer(playerId);
+            if (pending == null || onlinePlayer == null || !onlinePlayer.isOnline()) {
+                return;
+            }
+            if (System.currentTimeMillis() - pending.createdAtMillis()
+                    > PENDING_TIMEOUT_MILLIS) {
+                onlinePlayer.sendMessage("Waystone placement expired. Please try again.");
+                return;
+            }
+            if (submittedName == null) {
+                onlinePlayer.sendMessage("Invalid Waystone name. Please try again.");
+                return;
+            }
+            createWaystone(onlinePlayer, pending.location(), submittedName);
+        });
     }
 
-    public void handleDialogSubmit(Player player, NamespacedKey action, JsonElement data, boolean asynchronous) {
-        if (!isWaystoneDialogAction(action)) {
-            return;
-        }
-
-        boolean cancelled = cancelAction.equals(action);
-        String submittedName = cancelled ? null : parseName(data);
-
-        Runnable handle = () -> {
-            PendingPlacement pending = pendingPlacements.remove(player.getUniqueId());
-            if (pending == null || cancelled || !player.isOnline()) {
-                return;
-            }
-
-            if (System.currentTimeMillis() - pending.createdAtMillis > PENDING_TIMEOUT_MILLIS) {
-                player.sendMessage("Waystone placement expired. Please try again.");
-                return;
-            }
-
-            if (submittedName == null) {
-                player.sendMessage("Invalid Waystone name. Please try again.");
-                return;
-            }
-
-            createWaystone(player, pending.location, submittedName);
-        };
-
-        if (asynchronous) {
-            Bukkit.getScheduler().runTask(plugin, handle);
-        } else {
-            handle.run();
-        }
+    public void cancel(Player player) {
+        UUID playerId = player.getUniqueId();
+        runOnMainThread(() -> pendingPlacements.remove(playerId));
     }
 
     public void clearPendingPlacement(UUID playerId) {
-        pendingPlacements.remove(playerId);
+        runOnMainThread(() -> pendingPlacements.remove(playerId));
     }
 
-    private String parseName(JsonElement data) {
-        if (data == null || !data.isJsonObject()) {
-            return null;
+    private void runOnMainThread(Runnable action) {
+        if (Bukkit.isPrimaryThread()) {
+            action.run();
+        } else {
+            Bukkit.getScheduler().runTask(plugin, action);
+        }
+    }
+
+    private WaystoneDialogAdapter createAdapter() {
+        // This method is used to determine which platform the waystone creation dialog is running on. As the APIs are different for spigot and paper
+        boolean paper;
+        try {
+            Class.forName("io.papermc.paper.dialog.Dialog", false, getClass().getClassLoader());
+            paper = true;
+        } catch (ClassNotFoundException ex) {
+            paper = false;
         }
 
-        JsonObject fields = data.getAsJsonObject();
-        JsonElement name = fields.get(INPUT_NAME);
-        if (name == null || !name.isJsonPrimitive() || !name.getAsJsonPrimitive().isString()) {
-            return null;
+        String className = "com.ninjamcr.waystones.creation." + (paper ? "PaperDialogAdapter" : "SpigotDialogAdapter");
+        try {
+            Class<? extends WaystoneDialogAdapter> adapterClass = Class.forName(className, true, getClass().getClassLoader()).asSubclass(WaystoneDialogAdapter.class);
+            Constructor<? extends WaystoneDialogAdapter> constructor = adapterClass.getConstructor(WaystoneCreation.class);
+            return constructor.newInstance(this);
+        } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | LinkageError ex) {
+            throw new IllegalStateException("Cannot initialize " + className + " on this server. Check the compatible server API and plugin JAR", ex);
         }
-
-        return name.getAsString();
     }
 
     private void createWaystone(Player player, Location location, String rawName) {
@@ -150,7 +129,6 @@ public final class WaystoneCreation {
             return;
         }
 
-        // The placement may have been occupied since the dialog was opened.
         Block block = location.getBlock();
         if (!block.getType().isAir()) {
             player.sendMessage("The Waystone placement location is no longer empty.");
@@ -198,22 +176,19 @@ public final class WaystoneCreation {
 
     private int findCustomWaystoneSlot(Player player) {
         ItemStack[] contents = player.getInventory().getContents();
-
         for (int slot = 0; slot < contents.length; slot++) {
             ItemStack item = contents[slot];
             if (item == null || item.getType() != Material.LODESTONE) {
                 continue;
             }
-
             ItemMeta meta = item.getItemMeta();
             if (meta != null && Boolean.TRUE.equals(
                     meta.getPersistentDataContainer().get(isWaystoneKey, PersistentDataType.BOOLEAN))) {
                 return slot;
             }
         }
-
         return -1;
     }
 
-    private record PendingPlacement(Location location, long createdAtMillis) {}
+    private record PendingPlacement(Location location, long createdAtMillis) { }
 }

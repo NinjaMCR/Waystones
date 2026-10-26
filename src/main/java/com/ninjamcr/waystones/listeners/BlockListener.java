@@ -13,7 +13,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.player.PlayerCustomClickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -22,7 +21,6 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.Iterator;
 
 public class BlockListener implements Listener {
-
     private final Waystones plugin;
     private final BlockUtils blockUtils;
     private final WaystoneCreation waystoneCreation;
@@ -53,18 +51,8 @@ public class BlockListener implements Listener {
             return;
         }
 
-        // Defer placement until the player confirms a name in the dialog.
         event.setCancelled(true);
         waystoneCreation.openWaystoneCreationDialog(event.getPlayer(), event.getBlockPlaced().getLocation());
-    }
-
-    @EventHandler
-    public void onWaystoneDialogClick(PlayerCustomClickEvent event) {
-        if (!waystoneCreation.isWaystoneDialogAction(event.getId())) {
-            return;
-        }
-
-        waystoneCreation.handleDialogSubmit(event.getPlayer(), event.getId(), event.getData(), event.isAsynchronous());
     }
 
     @EventHandler
@@ -75,11 +63,9 @@ public class BlockListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
-
         if (block.getType() == Material.LODESTONE && blockUtils.isBlockLocationInList(block.getLocation())) {
             event.setDropItems(false);
             waystoneDestruction.handleWaystoneBreak(block);
-
             String brokenMsg = plugin.getConfig().getString(
                     "messages.broken", "Waystone broken.");
             event.getPlayer().sendMessage(brokenMsg);

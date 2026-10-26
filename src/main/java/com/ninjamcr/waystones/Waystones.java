@@ -5,13 +5,16 @@ import com.ninjamcr.waystones.listeners.BlockListener;
 import com.ninjamcr.waystones.listeners.InventoryListener;
 import com.ninjamcr.waystones.listeners.PlayerListener;
 import com.ninjamcr.waystones.models.Waystone;
+import com.ninjamcr.waystones.utils.DatapackLoader;
 import com.ninjamcr.waystones.utils.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.packs.DataPack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,7 +32,7 @@ public final class Waystones extends JavaPlugin {
         saveDefaultConfig();
 
         // Run version checks
-        if (getPluginMeta().getVersion().contains("beta")){
+        if (getDescription().getVersion().contains("beta")){
             getLogger().warning("WARNING: You are using a beta version which may be unstable");
         } else {
             UpdateChecker updateChecker = new UpdateChecker(this);
@@ -65,11 +68,22 @@ public final class Waystones extends JavaPlugin {
         }
     }
 
+    @Override
+    public void onLoad(){
+        DatapackLoader.installDatapack(this);
+        Bukkit.reloadData();
+    }
+
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
     }
 
     public void registerWaystoneRecipe() {
+        NamespacedKey recipeKey = new NamespacedKey(this, "waystone_recipe");
+        if (Bukkit.getRecipe(recipeKey) != null) {
+            return;
+        }
+
         String customName = getConfig().getString("waystone-display-name", "§bWaystone");
 
         ItemStack waystoneItem = new ItemStack(Material.LODESTONE);
@@ -81,7 +95,6 @@ public final class Waystones extends JavaPlugin {
             waystoneItem.setItemMeta(meta);
         }
 
-        NamespacedKey recipeKey = new NamespacedKey(this, "waystone_recipe");
         ShapedRecipe recipe = new ShapedRecipe(recipeKey, waystoneItem);
         recipe.shape("III", "IEI", "III");
         recipe.setIngredient('I', Material.DIAMOND);

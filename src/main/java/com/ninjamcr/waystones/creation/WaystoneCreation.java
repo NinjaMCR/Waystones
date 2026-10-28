@@ -23,7 +23,7 @@ import java.util.logging.Level;
 
 public final class WaystoneCreation {
     public static final String INPUT_NAME = "waystone_name";
-    private static final long PENDING_TIMEOUT_MILLIS = 120_000L;
+    private static final long PENDING_TIMEOUT_MILLIS = 30_000L;
 
     private final Waystones plugin;
     private final NamespacedKey isWaystoneKey;
@@ -68,8 +68,7 @@ public final class WaystoneCreation {
             if (pending == null || onlinePlayer == null || !onlinePlayer.isOnline()) {
                 return;
             }
-            if (System.currentTimeMillis() - pending.createdAtMillis()
-                    > PENDING_TIMEOUT_MILLIS) {
+            if (System.currentTimeMillis() - pending.createdAtMillis() > PENDING_TIMEOUT_MILLIS) {
                 onlinePlayer.sendMessage("Waystone placement expired. Please try again.");
                 return;
             }

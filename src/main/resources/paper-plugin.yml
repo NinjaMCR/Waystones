@@ -1,8 +1,6 @@
 name: waystones
 version: '1.4-beta'
-
 main: com.ninjamcr.waystones.Waystones
-loader: com.ninjamcr.waystones.WaystonesLoader
 bootstrapper: com.ninjamcr.waystones.WaystonesBootstrap
 api-version: '26.0'
 load: POSTWORLD

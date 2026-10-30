@@ -20,7 +20,7 @@ public class UpdateChecker {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 BufferedReader reader = getBufferedReader();
-                String currentVersion = plugin.getPluginMeta().getVersion();
+                String currentVersion = plugin.getDescription().getVersion();
                 ReadFileAndWarn(reader, currentVersion);
             } catch (URISyntaxException | MalformedURLException e) {
                 throw new RuntimeException("URL was incorrect", e);
@@ -43,7 +43,7 @@ public class UpdateChecker {
         String latestVersion = line.replace("version: ", "").replace("'", "");
         if (!latestVersion.equals(currentVersion)){
             plugin.getLogger().warning("There is a newer version of Waystones available!");
-            plugin.getLogger().warning("Current version: " + plugin.getPluginMeta().getVersion() + " | Latest version: " + latestVersion);
+            plugin.getLogger().warning("Current version: " + plugin.getDescription().getVersion() + " | Latest version: " + latestVersion);
             plugin.getLogger().warning("Update your plugin version to the latest at https://modrinth.com/plugin/waystones-ninjamcr");
         }
     }

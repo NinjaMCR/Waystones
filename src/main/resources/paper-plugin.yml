@@ -1,5 +1,5 @@
 name: waystones
-version: '1.4-beta'
+version: '1.4'
 main: com.ninjamcr.waystones.Waystones
 bootstrapper: com.ninjamcr.waystones.WaystonesBootstrap
 api-version: '26.0'

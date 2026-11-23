@@ -10,12 +10,12 @@ import org.bukkit.event.player.PlayerCustomClickEvent;
 
 public final class SpigotDialogListener implements Listener {
     private final WaystoneCreation creation;
-    private final NamespacedKey createAction;
+    private final NamespacedKey chooseIconAction;
     private final NamespacedKey cancelAction;
 
-    public SpigotDialogListener(WaystoneCreation creation, NamespacedKey createAction, NamespacedKey cancelAction) {
+    public SpigotDialogListener(WaystoneCreation creation, NamespacedKey chooseIconAction, NamespacedKey cancelAction) {
         this.creation = creation;
-        this.createAction = createAction;
+        this.chooseIconAction = chooseIconAction;
         this.cancelAction = cancelAction;
     }
 
@@ -26,7 +26,7 @@ public final class SpigotDialogListener implements Listener {
             creation.cancel(event.getPlayer());
             return;
         }
-        if (!createAction.equals(action)) {
+        if (!chooseIconAction.equals(action)) {
             return;
         }
 
@@ -39,6 +39,6 @@ public final class SpigotDialogListener implements Listener {
                 name = value.getAsString();
             }
         }
-        creation.confirm(event.getPlayer(), name);
+        creation.chooseIcon(event.getPlayer(), name);
     }
 }

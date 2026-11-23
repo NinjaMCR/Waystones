@@ -17,20 +17,20 @@ import java.util.List;
 // Class will only ever work on spigot compatible servers
 public final class SpigotDialogAdapter implements WaystoneDialogAdapter {
     private final WaystoneCreation creation;
-    private final NamespacedKey createAction;
+    private final NamespacedKey chooseIconAction;
     private final NamespacedKey cancelAction;
 
     public SpigotDialogAdapter(WaystoneCreation creation) {
         this.creation = creation;
         Waystones plugin = creation.getPlugin();
-        this.createAction = new NamespacedKey(plugin, "create_waystone");
+        this.chooseIconAction = new NamespacedKey(plugin, "choose_waystone_icon");
         this.cancelAction = new NamespacedKey(plugin, "cancel_waystone");
     }
 
     @Override
     public void registerHandlers(Waystones plugin) {
         Bukkit.getPluginManager().registerEvents(
-                new SpigotDialogListener(creation, createAction, cancelAction), plugin
+                new SpigotDialogListener(creation, chooseIconAction, cancelAction), plugin
         );
     }
 
@@ -43,15 +43,15 @@ public final class SpigotDialogAdapter implements WaystoneDialogAdapter {
         DialogBase base = new DialogBase(new TextComponent("Create Waystone"))
                 .inputs(List.of(input));
 
-        ActionButton create = new ActionButton(
-                new TextComponent("Create"),
-                new CustomClickAction(createAction.toString())
+        ActionButton chooseIcon = new ActionButton(
+                new TextComponent("Choose icon and create"),
+                new CustomClickAction(chooseIconAction.toString())
         );
         ActionButton cancel = new ActionButton(
                 new TextComponent("Cancel"),
                 new CustomClickAction(cancelAction.toString())
         );
 
-        player.showDialog(new ConfirmationDialog(base, create, cancel));
+        player.showDialog(new ConfirmationDialog(base, chooseIcon, cancel));
     }
 }

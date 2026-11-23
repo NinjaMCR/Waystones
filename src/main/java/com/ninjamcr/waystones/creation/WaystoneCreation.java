@@ -2,6 +2,7 @@ package com.ninjamcr.waystones.creation;
 
 import com.ninjamcr.waystones.Waystones;
 import com.ninjamcr.waystones.models.Waystone;
+import com.ninjamcr.waystones.models.WaystoneIcon;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -29,12 +30,15 @@ public final class WaystoneCreation {
     private final NamespacedKey isWaystoneKey;
     private final Map<UUID, PendingPlacement> pendingPlacements = new HashMap<>();
     private final WaystoneDialogAdapter dialogAdapter;
+    private final WaystoneIconPicker iconPicker;
 
     public WaystoneCreation(Waystones plugin) {
         this.plugin = plugin;
         this.isWaystoneKey = new NamespacedKey(plugin, "is_waystone");
+        this.iconPicker = new WaystoneIconPicker(plugin);
         this.dialogAdapter = createAdapter();
         this.dialogAdapter.registerHandlers(plugin);
+        Bukkit.getPluginManager().registerEvents(iconPicker, plugin);
         plugin.getLogger().info("Waystone creation UI: " + dialogAdapter.getClass().getSimpleName());
     }
 
@@ -60,7 +64,7 @@ public final class WaystoneCreation {
         }
     }
 
-    public void confirm(Player player, String submittedName) {
+    public void chooseIcon(Player player, String submittedName) {
         UUID playerId = player.getUniqueId();
         runOnMainThread(() -> {
             PendingPlacement pending = pendingPlacements.remove(playerId);
@@ -68,16 +72,32 @@ public final class WaystoneCreation {
             if (pending == null || onlinePlayer == null || !onlinePlayer.isOnline()) {
                 return;
             }
-            if (System.currentTimeMillis() - pending.createdAtMillis() > PENDING_TIMEOUT_MILLIS) {
-                onlinePlayer.sendMessage("Waystone placement expired. Please try again.");
+            if (placementExpired(onlinePlayer, pending)) {
                 return;
             }
             if (submittedName == null) {
                 onlinePlayer.sendMessage("Invalid Waystone name. Please try again.");
                 return;
             }
-            createWaystone(onlinePlayer, pending.location(), submittedName);
+            String name = submittedName.trim();
+            if (name.isEmpty() || name.length() > 32) {
+                onlinePlayer.sendMessage("Waystone names must contain 1-32 characters.");
+                return;
+            }
+            iconPicker.open(onlinePlayer, icon -> {
+                if (!placementExpired(onlinePlayer, pending)) {
+                    createWaystone(onlinePlayer, pending.location(), name, icon);
+                }
+            });
         });
+    }
+
+    private boolean placementExpired(Player player, PendingPlacement pending) {
+        if (System.currentTimeMillis() - pending.createdAtMillis() <= PENDING_TIMEOUT_MILLIS) {
+            return false;
+        }
+        player.sendMessage("Waystone placement expired. Please try again.");
+        return true;
     }
 
     public void cancel(Player player) {
@@ -117,14 +137,8 @@ public final class WaystoneCreation {
         }
     }
 
-    private void createWaystone(Player player, Location location, String rawName) {
+    private void createWaystone(Player player, Location location, String name, WaystoneIcon icon) {
         if (!player.isOnline() || location.getWorld() == null) {
-            return;
-        }
-
-        String name = rawName.trim();
-        if (name.isEmpty() || name.length() > 32) {
-            player.sendMessage("Waystone names must contain 1-32 characters.");
             return;
         }
 
@@ -144,7 +158,7 @@ public final class WaystoneCreation {
         }
 
         BlockState previous = block.getState();
-        Waystone waystone = new Waystone(UUID.randomUUID(), name, location.clone());
+        Waystone waystone = new Waystone(UUID.randomUUID(), name, location.clone(), icon);
 
         try {
             block.setType(Material.LODESTONE);

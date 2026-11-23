@@ -79,7 +79,7 @@ public class WaystoneInteraction {
             Waystone waystone = worldWaystones.get(i);
             Location loc = waystone.getLocation();
 
-            ItemStack teleporter = new ItemStack(Material.COMPASS);
+            ItemStack teleporter = new ItemStack(waystone.getIcon().getMaterial());
             ItemMeta teleporterMeta = teleporter.getItemMeta();
 
             // Add teleporter item to gui

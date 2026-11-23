@@ -1,6 +1,7 @@
 package com.ninjamcr.waystones.database;
 
 import com.ninjamcr.waystones.models.Waystone;
+import com.ninjamcr.waystones.models.WaystoneIcon;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -68,9 +69,10 @@ public class DatabaseManager {
             pstmt.setInt(4, loc.getBlockY());
             pstmt.setInt(5, loc.getBlockZ());
             pstmt.setString(6, name);
+            pstmt.setString(7, waystone.getIcon().name());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Could not insert Waystone " + id, e);
         }
     }
 
@@ -97,10 +99,11 @@ public class DatabaseManager {
                 int y = rs.getInt("y");
                 int z = rs.getInt("z");
                 String name = rs.getString("name");
+                WaystoneIcon icon = WaystoneIcon.fromStorage(rs.getString("icon"));
 
                 if (Bukkit.getWorld(worldName) != null) {
                     Location location = new Location(Bukkit.getWorld(worldName), x, y, z);
-                    Waystone waystone = new Waystone(UUID.fromString(id), name, location);
+                    Waystone waystone = new Waystone(UUID.fromString(id), name, location, icon);
                     waystones.add(waystone);
                 }
             }

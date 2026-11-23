@@ -1,5 +1,5 @@
 name: waystones
-version: '1.4'
+version: '${project.version}'
 main: com.ninjamcr.waystones.Waystones
 bootstrapper: com.ninjamcr.waystones.WaystonesBootstrap
 api-version: '26.0'

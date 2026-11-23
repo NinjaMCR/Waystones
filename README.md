@@ -10,6 +10,18 @@ Both these sources will always include the latest stable release.
 To add the plugin to your server download the jar and add it to your server's plugin folder. On startup you should see the plugin enable in the console log.
 
 
+## Database migrations
+
+Waystones applies pending SQLite migrations during startup, before loading saved waystones.
+The first migration also registers databases created by older releases and preserves their rows.
+
+To change the schema, add a numbered SQL script such as `002-add-description.sql`
+under `src/main/resources/database/migrations/` and append its filename to `index.txt`.
+The position in the index is the schema version, so keep published scripts and their order fixed.
+Scripts may contain multiple SQL statements. Leave transaction control and `PRAGMA user_version`
+to the migration runner, which rolls back pending changes if a script fails.
+Update the SQL files under `src/main/resources/database/queries/` when the queries need to change.
+
 ## License
 
 Waystones is licensed under the PolyForm Noncommercial License 1.0.0.

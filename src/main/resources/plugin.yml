@@ -1,5 +1,5 @@
 name: waystones
-version: '1.4'
+version: '${project.version}'
 main: com.ninjamcr.waystones.Waystones
 api-version: '26.0'
 load: POSTWORLD

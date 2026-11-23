@@ -16,46 +16,32 @@ public class DatabaseManager {
 
     private final JavaPlugin plugin;
     private Connection connection;
+    private String insertWaystone;
+    private String deleteWaystone;
+    private String selectWaystones;
 
     public DatabaseManager(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
     public void initialize() {
-        // Ensure the plugin's data folder exists
-        if (!plugin.getDataFolder().exists()) {
-            plugin.getDataFolder().mkdirs();
+        File dataFolder = plugin.getDataFolder();
+        if (!dataFolder.isDirectory() && !dataFolder.mkdirs() && !dataFolder.isDirectory()) {
+            throw new IllegalStateException("Could not create plugin data directory: " + dataFolder);
         }
 
-        File dbFile = new File(plugin.getDataFolder(), "waystones.db");
-        if (!dbFile.exists()) {
-            try {
-                dbFile.createNewFile();
-            } catch (IOException e) {
-                plugin.getLogger().severe("Could not create waystones.db file!");
-                e.printStackTrace();
-            }
-        }
-
+        File dbFile = new File(dataFolder, "waystones.db");
         try {
-            // Establish Connection
+            insertWaystone = DatabaseMigrations.readResource("queries/insert-waystone.sql");
+            deleteWaystone = DatabaseMigrations.readResource("queries/delete-waystone.sql");
+            selectWaystones = DatabaseMigrations.readResource("queries/select-waystones.sql");
+
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-
-            // Create the table structure if it doesn't exist
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("CREATE TABLE IF NOT EXISTS waystones (" +
-                        "id STRING PRIMARY KEY," +
-                        "world TEXT NOT NULL," +
-                        "x INTEGER NOT NULL," +
-                        "y INTEGER NOT NULL," +
-                        "z INTEGER NOT NULL," +
-                        "name TEXT NOT NULL" +
-                        ");");
-            }
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to initialize SQLite Database!");
-            e.printStackTrace();
+            DatabaseMigrations.apply(connection);
+        } catch (ClassNotFoundException | IOException | SQLException e) {
+            close();
+            throw new IllegalStateException("Failed to initialize SQLite database: " + dbFile, e);
         }
     }
 
@@ -75,8 +61,7 @@ public class DatabaseManager {
         Location loc = waystone.getLocation();
         String name = waystone.getName();
 
-        String sql = "INSERT INTO waystones (id, world, x, y, z, name) VALUES (?, ?, ?, ?, ?, ?);";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = connection.prepareStatement(insertWaystone)) {
             pstmt.setString(1, id);
             pstmt.setString(2, loc.getWorld().getName());
             pstmt.setInt(3, loc.getBlockX());
@@ -91,8 +76,7 @@ public class DatabaseManager {
 
     // Delete a Waystone when broken
     public void deleteWaystone(Waystone ws) {
-        String sql = "DELETE FROM waystones WHERE id = ?;";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = connection.prepareStatement(deleteWaystone)) {
             pstmt.setString(1, ws.getId().toString());
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -103,9 +87,8 @@ public class DatabaseManager {
     // Fetch all Waystones on server startup
     public List<Waystone> loadWaystones() {
         List<Waystone> waystones = new ArrayList<>();
-        String sql = "SELECT * FROM waystones;";
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery(selectWaystones)) {
 
             while (rs.next()) {
                 String id = rs.getString("id");

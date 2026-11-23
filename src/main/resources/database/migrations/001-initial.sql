@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS waystones (
+    id STRING PRIMARY KEY,
+    world TEXT NOT NULL,
+    x INTEGER NOT NULL,
+    y INTEGER NOT NULL,
+    z INTEGER NOT NULL,
+    name TEXT NOT NULL
+);

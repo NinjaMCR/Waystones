@@ -13,65 +13,72 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Iterator;
 
-public class BlockListener  implements Listener {
-
+public class BlockListener implements Listener {
     private final Waystones plugin;
     private final BlockUtils blockUtils;
     private final WaystoneCreation waystoneCreation;
     private final WaystoneDestruction waystoneDestruction;
+    private final NamespacedKey isWaystoneKey;
 
     public BlockListener(Waystones plugin) {
         this.plugin = plugin;
         this.blockUtils = new BlockUtils(plugin);
         this.waystoneCreation = new WaystoneCreation(plugin);
         this.waystoneDestruction = new WaystoneDestruction(plugin);
+        this.isWaystoneKey = new NamespacedKey(plugin, "is_waystone");
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        NamespacedKey key = new NamespacedKey(plugin, "is_waystone");
-        ItemMeta meta = event.getItemInHand().getItemMeta();
+        if (!event.canBuild()) {
+            return;
+        }
 
-        // Check that what we are placing is a waystone
-        if (meta.getPersistentDataContainer().get(key, PersistentDataType.BOOLEAN) == null) {
+        ItemStack item = event.getItemInHand();
+        if (item.getType() != Material.LODESTONE) {
+            return;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null || !Boolean.TRUE.equals(meta.getPersistentDataContainer().get(isWaystoneKey, PersistentDataType.BOOLEAN))) {
             return;
         }
 
         event.setCancelled(true);
-
         waystoneCreation.openWaystoneCreationDialog(event.getPlayer(), event.getBlockPlaced().getLocation());
     }
 
     @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        waystoneCreation.clearPendingPlacement(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
-
         if (block.getType() == Material.LODESTONE && blockUtils.isBlockLocationInList(block.getLocation())) {
             event.setDropItems(false);
-
             waystoneDestruction.handleWaystoneBreak(block);
-
             String brokenMsg = plugin.getConfig().getString(
-                    "messages.broken",
-                    "Waystone broken."
-            );
-
+                    "messages.broken", "Waystone broken.");
             event.getPlayer().sendMessage(brokenMsg);
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
         Iterator<Block> iterator = event.blockList().iterator();
         waystoneDestruction.BlockDestruction(iterator);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event) {
         Iterator<Block> iterator = event.blockList().iterator();
         waystoneDestruction.BlockDestruction(iterator);

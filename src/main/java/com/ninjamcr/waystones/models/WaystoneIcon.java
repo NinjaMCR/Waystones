@@ -79,7 +79,7 @@ public enum WaystoneIcon {
             try {
                 return valueOf(value);
             } catch (IllegalArgumentException ignored) {
-                Bukkit.getLogger().warning("[Waystones] Unknown saved icon '" + value + "'. Using COMPASS.");
+                Bukkit.getLogger().warning("Unknown saved icon '" + value + "'. Using COMPASS.");
             }
         }
         return COMPASS;

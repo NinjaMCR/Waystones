@@ -23,6 +23,21 @@ public final class PaperDialogAdapter implements WaystoneDialogAdapter {
 
     @Override
     public void open(Player player) {
+        ActionButton chooseIcon = ActionButton.builder(Component.text("Choose icon and create"))
+                .action(DialogAction.customClick((view, audience) -> {
+                    if (audience instanceof Player submittingPlayer) {
+                        creation.chooseIcon(submittingPlayer, view.getText(WaystoneCreation.INPUT_NAME));
+                    }
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        ActionButton cancel = ActionButton.builder(Component.text("Cancel"))
+                .action(DialogAction.customClick((view, audience) -> {
+                    if (audience instanceof Player cancellingPlayer) {
+                        creation.cancel(cancellingPlayer);
+                    }
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+
         Dialog dialog = Dialog.create(builder -> builder.empty()
                 .base(DialogBase.builder(Component.text("Create Waystone"))
                         .inputs(List.of(DialogInput.text(WaystoneCreation.INPUT_NAME, Component.text("Waystone Name"))
@@ -32,22 +47,7 @@ public final class PaperDialogAdapter implements WaystoneDialogAdapter {
                                 .maxLength(32)
                                 .build()))
                         .build())
-                .type(DialogType.confirmation(
-                        ActionButton.builder(Component.text("Create"))
-                                .action(DialogAction.customClick((view, audience) -> {
-                                    if (audience instanceof Player submittingPlayer) {
-                                        creation.confirm(submittingPlayer, view.getText(WaystoneCreation.INPUT_NAME));
-                                    }
-                                }, ClickCallback.Options.builder().uses(1).build()))
-                                .build(),
-                        ActionButton.builder(Component.text("Cancel"))
-                                .action(DialogAction.customClick((view, audience) -> {
-                                    if (audience instanceof Player cancellingPlayer) {
-                                        creation.cancel(cancellingPlayer);
-                                    }
-                                }, ClickCallback.Options.builder().uses(1).build()))
-                                .build()
-                )));
+                .type(DialogType.confirmation(chooseIcon, cancel)));
 
         ((Audience) player).showDialog(dialog);
     }

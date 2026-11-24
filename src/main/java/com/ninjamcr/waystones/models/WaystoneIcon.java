@@ -1,5 +1,6 @@
 package com.ninjamcr.waystones.models;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 public enum WaystoneIcon {
@@ -78,7 +79,7 @@ public enum WaystoneIcon {
             try {
                 return valueOf(value);
             } catch (IllegalArgumentException ignored) {
-                // A saved icon can outlive its entry in the palette.
+                Bukkit.getLogger().warning("[Waystones] Unknown saved icon '" + value + "'. Using COMPASS.");
             }
         }
         return COMPASS;

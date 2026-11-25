@@ -26,7 +26,7 @@ public final class PaperDialogAdapter implements WaystoneDialogAdapter {
         ActionButton chooseIcon = ActionButton.builder(Component.text("Choose icon and create"))
                 .action(DialogAction.customClick((view, audience) -> {
                     if (audience instanceof Player submittingPlayer) {
-                        creation.chooseIcon(submittingPlayer, view.getText(WaystoneCreation.INPUT_NAME));
+                        creation.chooseIcon(submittingPlayer, view.getText(WaystoneCreation.INPUT_NAME), view.getText(WaystoneCreation.INPUT_DESCRIPTION));
                     }
                 }, ClickCallback.Options.builder().uses(1).build()))
                 .build();
@@ -45,7 +45,13 @@ public final class PaperDialogAdapter implements WaystoneDialogAdapter {
                                 .labelVisible(true)
                                 .initial("")
                                 .maxLength(32)
-                                .build()))
+                                .build(),
+                                DialogInput.text(WaystoneCreation.INPUT_DESCRIPTION, Component.text("Waystone Description"))
+                                        .width(300)
+                                        .labelVisible(true)
+                                        .initial("")
+                                        .maxLength(32)
+                                        .build()))
                         .build())
                 .type(DialogType.confirmation(chooseIcon, cancel)));
 

@@ -24,6 +24,8 @@ import java.util.logging.Level;
 
 public final class WaystoneCreation {
     public static final String INPUT_NAME = "waystone_name";
+    public static final String INPUT_DESCRIPTION = "waystone_description";
+    public static final String INPUT_ICON = "waystone_icon";
     private static final long PENDING_TIMEOUT_MILLIS = 30_000L;
 
     private final Waystones plugin;
@@ -64,7 +66,7 @@ public final class WaystoneCreation {
         }
     }
 
-    public void chooseIcon(Player player, String submittedName) {
+    public void chooseIcon(Player player, String submittedName, String submittedDescription) {
         UUID playerId = player.getUniqueId();
         runOnMainThread(() -> {
             PendingPlacement pending = pendingPlacements.remove(playerId);
@@ -75,6 +77,7 @@ public final class WaystoneCreation {
             if (placementExpired(onlinePlayer, pending)) {
                 return;
             }
+
             if (submittedName == null) {
                 onlinePlayer.sendMessage("Invalid Waystone name. Please try again.");
                 return;
@@ -84,9 +87,20 @@ public final class WaystoneCreation {
                 onlinePlayer.sendMessage("Waystone names must contain 1-32 characters.");
                 return;
             }
+
+            if (submittedDescription == null) {
+                onlinePlayer.sendMessage("Invalid Waystone description. Please try again.");
+                return;
+            }
+            String desc = submittedDescription.trim();
+            if (desc.isEmpty() || desc.length() > 32) {
+                onlinePlayer.sendMessage("Waystone descriptions must contain 1-128 characters.");
+                return;
+            }
+
             iconPicker.open(onlinePlayer, icon -> {
                 if (!placementExpired(onlinePlayer, pending)) {
-                    createWaystone(onlinePlayer, pending.location(), name, icon);
+                    createWaystone(onlinePlayer, pending.location(), name, icon, desc);
                 }
             });
         });
@@ -137,7 +151,7 @@ public final class WaystoneCreation {
         }
     }
 
-    private void createWaystone(Player player, Location location, String name, WaystoneIcon icon) {
+    private void createWaystone(Player player, Location location, String name, WaystoneIcon icon, String description) {
         if (!player.isOnline() || location.getWorld() == null) {
             return;
         }
@@ -158,7 +172,7 @@ public final class WaystoneCreation {
         }
 
         BlockState previous = block.getState();
-        Waystone waystone = new Waystone(UUID.randomUUID(), name, location.clone(), icon);
+        Waystone waystone = new Waystone(UUID.randomUUID(), name, location.clone(), icon, description);
 
         try {
             block.setType(Material.LODESTONE);

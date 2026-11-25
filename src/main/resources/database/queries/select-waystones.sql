@@ -1,1 +1,1 @@
-SELECT id, world, x, y, z, name, icon FROM waystones;
+SELECT id, world, x, y, z, name, icon, description FROM waystones;

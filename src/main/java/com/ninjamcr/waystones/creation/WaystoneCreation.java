@@ -25,8 +25,7 @@ import java.util.logging.Level;
 public final class WaystoneCreation {
     public static final String INPUT_NAME = "waystone_name";
     public static final String INPUT_DESCRIPTION = "waystone_description";
-    public static final String INPUT_ICON = "waystone_icon";
-    private static final long PENDING_TIMEOUT_MILLIS = 30_000L;
+    private static final long PENDING_TIMEOUT_MILLIS = 300_000L;
 
     private final Waystones plugin;
     private final NamespacedKey isWaystoneKey;

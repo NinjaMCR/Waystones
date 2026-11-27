@@ -50,7 +50,7 @@ public final class PaperDialogAdapter implements WaystoneDialogAdapter {
                                         .width(300)
                                         .labelVisible(true)
                                         .initial("")
-                                        .maxLength(32)
+                                        .maxLength(128)
                                         .build()))
                         .build())
                 .type(DialogType.confirmation(chooseIcon, cancel)));

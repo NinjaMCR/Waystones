@@ -10,16 +10,18 @@ public class Waystone {
     private final String name;
     private final Location location;
     private final WaystoneIcon icon;
+    private final String description;
 
-    public Waystone(UUID id, String name, Location location) {
-        this(id, name, location, WaystoneIcon.COMPASS);
+    public Waystone(UUID id, String name, Location location, String description) {
+        this(id, name, location, WaystoneIcon.COMPASS, description);
     }
 
-    public Waystone(UUID id, String name, Location location, WaystoneIcon icon) {
+    public Waystone(UUID id, String name, Location location, WaystoneIcon icon, String description) {
         this.id = id;
         this.name = name;
         this.location = location;
         this.icon = icon;
+        this.description = description;
     }
 
     public UUID getId() {
@@ -36,5 +38,9 @@ public class Waystone {
 
     public WaystoneIcon getIcon() {
         return icon;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

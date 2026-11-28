@@ -84,7 +84,13 @@ public class WaystoneInteraction {
 
             // Add teleporter item to gui
             if (teleporterMeta != null) {
-                teleporterMeta.setDisplayName("§b" + waystone.getName() + " at: " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ());
+                teleporterMeta.setDisplayName("§b" + waystone.getName());
+
+                List<String> teleporterLore = new ArrayList<>();
+                teleporterLore.add("");
+                teleporterLore.add("§6" + waystone.getDescription());
+                teleporterLore.add("§6Coords: " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ());
+                teleporterMeta.setLore(teleporterLore);
 
                 NamespacedKey destKey = new NamespacedKey(plugin, "dest_world");
                 teleporterMeta.getPersistentDataContainer().set(destKey, PersistentDataType.STRING, loc.getWorld().getName());

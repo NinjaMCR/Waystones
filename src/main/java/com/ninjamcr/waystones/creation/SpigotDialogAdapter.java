@@ -36,12 +36,16 @@ public final class SpigotDialogAdapter implements WaystoneDialogAdapter {
 
     @Override
     public void open(Player player) {
-        TextInput input = new TextInput(
+        TextInput nameInput = new TextInput(
                 WaystoneCreation.INPUT_NAME, new TextComponent("Waystone Name")
         ).width(300).labelVisible(true).initial("").maxLength(32);
 
+        TextInput descInput = new TextInput(
+                WaystoneCreation.INPUT_DESCRIPTION, new TextComponent("Waystone Description")
+        ).width(300).labelVisible(true).initial("").maxLength(128);
+
         DialogBase base = new DialogBase(new TextComponent("Create Waystone"))
-                .inputs(List.of(input));
+                .inputs(List.of(nameInput, descInput));
 
         ActionButton chooseIcon = new ActionButton(
                 new TextComponent("Choose icon and create"),

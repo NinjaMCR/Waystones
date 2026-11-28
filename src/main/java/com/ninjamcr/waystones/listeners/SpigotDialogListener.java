@@ -32,13 +32,19 @@ public final class SpigotDialogListener implements Listener {
 
         JsonElement data = event.getData();
         String name = null;
+        String description = null;
         if (data != null && data.isJsonObject()) {
             JsonObject values = data.getAsJsonObject();
-            JsonElement value = values.get(WaystoneCreation.INPUT_NAME);
-            if (value != null && value.isJsonPrimitive() && value.getAsJsonPrimitive().isString()) {
-                name = value.getAsString();
+            JsonElement nameValue = values.get(WaystoneCreation.INPUT_NAME);
+            if (nameValue != null && nameValue.isJsonPrimitive() && nameValue.getAsJsonPrimitive().isString()) {
+                name = nameValue.getAsString();
+            }
+
+            JsonElement descValue = values.get(WaystoneCreation.INPUT_DESCRIPTION);
+            if (descValue != null && descValue.isJsonPrimitive() && descValue.getAsJsonPrimitive().isString()) {
+                description = descValue.getAsString();
             }
         }
-        creation.chooseIcon(event.getPlayer(), name);
+        creation.chooseIcon(event.getPlayer(), name, description);
     }
 }

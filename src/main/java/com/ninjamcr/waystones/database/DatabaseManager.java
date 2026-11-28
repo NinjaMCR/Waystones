@@ -70,6 +70,7 @@ public class DatabaseManager {
             pstmt.setInt(5, loc.getBlockZ());
             pstmt.setString(6, name);
             pstmt.setString(7, waystone.getIcon().name());
+            pstmt.setString(8, waystone.getDescription());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("Could not insert Waystone " + id, e);
@@ -100,15 +101,16 @@ public class DatabaseManager {
                 int z = rs.getInt("z");
                 String name = rs.getString("name");
                 WaystoneIcon icon = WaystoneIcon.fromStorage(rs.getString("icon"));
+                String description = rs.getString("description");
 
                 if (Bukkit.getWorld(worldName) != null) {
                     Location location = new Location(Bukkit.getWorld(worldName), x, y, z);
-                    Waystone waystone = new Waystone(UUID.fromString(id), name, location, icon);
+                    Waystone waystone = new Waystone(UUID.fromString(id), name, location, icon, description);
                     waystones.add(waystone);
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Could not load Waystones", e);
         }
         return waystones;
     }

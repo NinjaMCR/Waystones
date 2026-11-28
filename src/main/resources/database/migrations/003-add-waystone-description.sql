@@ -1,0 +1,1 @@
+ALTER TABLE waystones ADD COLUMN description TEXT NOT NULL DEFAULT '';

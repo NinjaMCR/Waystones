@@ -92,7 +92,7 @@ public final class WaystoneCreation {
                 return;
             }
             String desc = submittedDescription.trim();
-            if (desc.isEmpty() || desc.length() > 32) {
+            if (desc.isEmpty() || desc.length() > 128) {
                 onlinePlayer.sendMessage("Waystone descriptions must contain 1-128 characters.");
                 return;
             }
